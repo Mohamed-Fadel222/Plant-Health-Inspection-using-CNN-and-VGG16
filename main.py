@@ -2,9 +2,19 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 
+
+
 # Tensorflow Model Prediction
-def model_prediction(test_image):
-    model = tf.keras.models.load_model("trained_plant_disease_model.keras")
+def model_prediction(test_image, selected_model):
+    if selected_model == "CNN":
+        model_path = 'trained_plant_disease_model.keras'
+    elif selected_model == "VGG":
+        model_path = 'fine_tuned_plant_disease_model_VGG.keras'
+    else:
+        st.error("Invalid model selection")
+        
+
+    model = tf.keras.models.load_model(model_path)
     image = tf.keras.preprocessing.image.load_img(test_image, target_size=(128, 128))
     input_arr = tf.keras.preprocessing.image.img_to_array(image)
     input_arr = np.array([input_arr])
@@ -16,6 +26,8 @@ def model_prediction(test_image):
 # Sidebar
 st.sidebar.title("Dashboard")
 app_mode = st.sidebar.selectbox("Select Page", ["Home", "About", "Disease Recognition"])
+selected_model = st.sidebar.selectbox("Select Model", ["CNN", "VGG"])
+
 
 # Main Page
 if app_mode == "Home":
@@ -68,7 +80,7 @@ elif app_mode == "Disease Recognition":
     if st.button("Predict"):
         st.snow()
         st.write("Our Prediction")
-        top_indices, top_confidences = model_prediction(test_image)
+        top_indices, top_confidences = model_prediction(test_image,selected_model)
         class_names = [
             'Apple Scab', 'Apple Black Rot', 'Cedar Apple Rust', 'Healthy Apple',
             'Healthy Blueberry', 'Powdery Mildew on Cherry', 'Healthy Cherry',
